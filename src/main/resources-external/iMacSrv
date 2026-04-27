@@ -1,0 +1,269 @@
+#!/bin/bash --
+
+#
+# Script genérico para manejar los servicios
+# Se debe renombrar este script con el nombre del jar sin la versión
+# Debe estar en el mismo directorio que el jar
+#
+# Los comandos soportados son
+#     start   ejecuta el servicio en background
+#     stop    detiene el servicio
+#     run     ejecuta el servicio en la consola
+#     status  muestra el estado del servicio, si está en ejecución o no
+#     restart reinicia el servicio, ejecuta un stop/start
+#
+#
+
+### Configuración
+
+export LOG_PATH=../logs
+
+JAVA_HOME=/usr/lib/jvm/java-17-openjdk-17.0.4.0.8-2.el9_0.x86_64
+#JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+JAVA_HOME=/usr/java/jdk-18
+
+### Fin configuración
+
+set -e
+
+PRG_NAME=$(basename "$0")
+SCRIPT_DIR=$(readlink -f "$(dirname "$0")")
+JAVA=${JAVA_HOME}/bin/java
+
+############################################################
+# utilitarian functions
+#
+
+#
+# Busca en el directorio lib un jar con comience con el nombre del servicio
+# para decidir con cual quedarse tiene en cuenta que puede haber un snapshot
+# Siempre toma el que tenga el mayor número de versión.
+# Deja el valor en la variable JAR_NAME
+#
+declare JAR_NAME
+
+function get_jar_name() {
+  cd "${SCRIPT_DIR}"
+
+  local jar jar2
+
+  # shellcheck disable=SC2012
+  # shellcheck disable=SC2086
+  jar=$(ls -r ${PRG_NAME}*.jar | head -n 1)
+
+  [[ ${jar} == *SNAPSHOT.jar ]] && {
+      jar2=${jar//-SNAPSHOT/}
+      [[ -f ${jar2} ]] && jar=${jar2}
+  }
+
+  [[ -z "${jar}" ]] && {
+    echo "No service found"
+    exit 1
+  }
+
+  JAR_NAME=${jar}
+
+  VERSION=$(echo "${JAR_NAME}" | sed "s/^${PRG_NAME}-//; s/\.jar$//")
+}
+
+#
+# Busca en el directorio config un archivo con el nombre del servicio + logback
+# del mismo extrae las variables LOG_PATH y LOG_FILE para determinar
+# el archivo de log
+# Deja el valor en la variable LOG_FILENAME
+#
+declare LOG_FILENAME
+
+function get_log_filename() {
+  cd "${SCRIPT_DIR}"
+
+  local logcfg dirlog dirfile
+
+  logcfg=$(find . -maxdepth 1 -name "${PRG_NAME}-logback.xml")
+  [[ -z "${logcfg}" ]] && {
+    echo "Log config file not found"
+    exit 1
+  }
+
+  dirfile=$(grep property ${logcfg} | grep '"LOG_FILE"' | sed 's/^.*value="//; s/".*$//')
+  dirlog=$(grep LOG_PATH ${logcfg} | grep property | sed 's/^.*value="//; s/".*$//')
+  [[ -z "${dirlog}" ]] && {
+    [[ -z "${LOG_PATH}" ]] && {
+      echo "Log path not defined"
+      exit 1
+    }
+    dirlog=${LOG_PATH}
+  }
+
+  LOG_FILENAME=$(readlink -f ${dirlog}/${dirfile})
+}
+
+#
+# Busca el pid del proceso y lo guarda en la variable PID
+#
+declare PID
+
+function check_service_running() {
+  set +e
+  PID=$(pgrep -f "${PRG_NAME}.*\.jar")
+  set -e
+}
+
+#
+# Si el servicio está en ejecución termina con exit status 1
+#
+function check_service_not_running() {
+  check_service_running
+  set +e
+  [[ -n "${PID}" ]] && {
+    echo "${PRG_NAME} is running"
+    echo
+    ps -fp "${PID}"
+    exit 1
+  }
+  set -e
+}
+
+############################################################
+# Acciones
+#
+
+function usage() {
+  echo "Usage: ${PRG_NAME} { start | stop | run | status | restart }"
+  exit 1
+}
+
+function start() {
+  get_jar_name
+  check_service_not_running
+  echo -n "Starting ${PRG_NAME} version ${VERSION} "
+  exec ${JAVA} -server -jar "${JAR_NAME}" "$@" >/dev/null 2>&1 &
+
+  local now
+  now=$(date +'%H%M%S')
+
+  for i in {1..10}
+  do
+    echo -n '.'
+    sleep 2
+    check_service_running
+    [[ -n "${PID}" ]] && {
+      break
+    }
+  done
+
+  local start
+  get_log_filename
+  for i in {1..20}
+  do
+    echo -n '.'
+    start=$(grep 'Started application' "${LOG_FILENAME}" | tail -1 | cut -d\| -f1 | sed 's/://g')
+    [[ -n "${start}" ]] && {
+      # shellcheck disable=SC2309
+      [[ "10#${start}" -gt "10#${now}" ]] && {
+        echo
+        echo "${PRG_NAME} started"
+        exit 0
+      }
+    }
+    sleep 2
+  done
+
+  echo
+  echo "Error starting ${PRG_NAME}"
+  get_log_filename
+  [[ -f "${LOG_FILENAME}" ]] && {
+    echo
+    du --time --time-style=+"%d/%m/%Y %T" -sh "${LOG_FILENAME}" | sed 's/\(\S*\)\(\s*\S*\s*\S*\s*\)\(.*\)$/\3\2\1/'
+    echo
+    tail "${LOG_FILENAME}" | cut -d\| -f1,2,5
+  }
+}
+
+function run() {
+    get_jar_name
+    ${JAVA} -server -jar "${JAR_NAME}" "$@"
+}
+
+function status() {
+  get_jar_name
+
+  check_service_running
+  if [[ -z "${PID}" ]]
+  then
+    echo "${PRG_NAME} not running"
+  else
+    ps -fp "${PID}"
+  fi
+
+  get_log_filename
+  [[ -f "${LOG_FILENAME}" ]] && {
+    echo
+    du --time --time-style=+"%d/%m/%Y %T" -sh "${LOG_FILENAME}" | sed 's/\(\S*\)\(\s*\S*\s*\S*\s*\)\(.*\)$/\3\2\1/'
+    echo
+    tail "${LOG_FILENAME}" | cut -d\| -f1,2,5
+  }
+}
+
+function stop() {
+  get_jar_name
+  check_service_running
+  [[ -z "${PID}" ]] && {
+    echo "${PRG_NAME} not running"
+    return
+  }
+
+  echo -n "Stopping ${PRG_NAME} "
+  kill -15 "${PID}"
+  get_log_filename
+  for i in {1..10}
+  do
+    echo -n '.'
+    sleep 2
+    check_service_running
+    [[ -z "${PID}" ]] && {
+      echo
+      echo "${PRG_NAME} stopped"
+      return
+    }
+  done
+
+  echo
+  echo "Error stopping ${PRG_NAME}"
+  get_log_filename
+  [[ -f "${LOG_FILENAME}" ]] && {
+    echo
+    du --time --time-style=+"%d/%m/%Y %T" -sh "${LOG_FILENAME}" | sed 's/\(\S*\)\(\s*\S*\s*\S*\s*\)\(.*\)$/\3\2\1/'
+    echo
+    tail "${LOG_FILENAME}" | cut -d\| -f1,2,5
+    exit 1
+  }
+}
+
+############################################################
+# MAIN
+#
+
+[[ $# -eq 0 ]] && usage
+
+cmd=$1
+shift
+
+case "${cmd}" in
+  start) start "$@" ;;
+
+  stop) stop ;;
+
+  status) status ;;
+
+  restart)
+    stop
+    start "$@"
+    ;;
+
+  run) run "$@" ;;
+
+  *) usage ;;
+esac
+
+exit $?
