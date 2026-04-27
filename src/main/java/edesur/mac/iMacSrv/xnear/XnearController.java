@@ -24,6 +24,7 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 
 @RestController
+@CrossOrigin("http://localhost:3000")
 @RequestMapping("/iMacSrv/xnear")
 public class XnearController {
     private static final Logger logger = LoggerFactory.getLogger(XnearController.class);
