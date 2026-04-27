@@ -9,6 +9,7 @@ import edesur.mac.iMacSrv.gestionOT.model.response.MedidorClienteRes;
 
 import edesur.mac.iMacSrv.gestionOT.beans.DataClienteManRet;
 import edesur.mac.iMacSrv.gestionOT.beans.MedidorClienteManRet;
+import edesur.mac.iMacSrv.gestionOT.beans.getMotivosOT;
 
 import edesur.mac.iMacSrv.gestionOT.utils.Mapeos;
 
@@ -43,4 +44,9 @@ public class GestionOTService {
         return resu;
     }
 
+    public List<MotivosOTsRes> getMotivosOT(MotivosOTsReq busqueda){
+        getMotivosOT miSrv = new getMotivosOT(jdbcClient);
+        List<MotivosOTsRes> resu = miSrv.getMotivos(busqueda.procedimiento());
+        return resu;
+    }
 }

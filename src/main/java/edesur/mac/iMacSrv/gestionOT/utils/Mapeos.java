@@ -23,7 +23,7 @@ public class Mapeos {
                 break;
         }
 
-        System.out.println("Procedimiento [" + sProced + "] codigo [" + sCodigo + "]");
+        //System.out.println("Procedimiento [" + sProced + "] codigo [" + sCodigo + "]");
         return sCodigo;
     }
 
