@@ -1,16 +1,23 @@
 package edesur.mac.iMacSrv.gestionOT;
 
 import edesur.mac.iMacSrv.gestionOT.model.request.MotivosOTsReq;
+import edesur.mac.iMacSrv.gestionOT.model.request.NroMensajeReq;
 import edesur.mac.iMacSrv.gestionOT.model.response.ClienteOTRes;
 import edesur.mac.iMacSrv.gestionOT.model.response.MotivosOTsRes;
 import edesur.mac.iMacSrv.gestionOT.model.request.NroClienteReq;
+import edesur.mac.iMacSrv.gestionOT.model.request.ClienteMensajeReq;
+
 import edesur.mac.iMacSrv.gestionOT.model.response.ProcesoPendienteRes;
 import edesur.mac.iMacSrv.gestionOT.model.response.MedidorClienteRes;
+import edesur.mac.iMacSrv.gestionOT.model.response.DataCabeceraManRet;
+import edesur.mac.iMacSrv.gestionOT.model.response.ManserFinalRes;
+import edesur.mac.iMacSrv.gestionOT.model.response.RetcliFinalRes;
 
 import edesur.mac.iMacSrv.gestionOT.beans.DataClienteManRet;
 import edesur.mac.iMacSrv.gestionOT.beans.MedidorClienteManRet;
 import edesur.mac.iMacSrv.gestionOT.beans.getMotivosOT;
 import edesur.mac.iMacSrv.gestionOT.beans.getProcesosPendientes;
+import edesur.mac.iMacSrv.gestionOT.beans.GetDataManRet;
 import edesur.mac.iMacSrv.gestionOT.utils.Mapeos;
 
 import lombok.extern.slf4j.Slf4j;
@@ -53,6 +60,24 @@ public class GestionOTService {
     public List<ProcesoPendienteRes> getProcesosPendientesCliente(NroClienteReq busqueda){
         getProcesosPendientes miSrv = new getProcesosPendientes(jdbcClient);
         List<ProcesoPendienteRes> resu = miSrv.getProcesosPendientes(busqueda.nroCliente());
+        return resu;
+    }
+
+    public DataCabeceraManRet getDataCabecera(NroMensajeReq busqueda){
+        GetDataManRet miSrv = new GetDataManRet(jdbcClient);
+        DataCabeceraManRet resu = miSrv.getDataCabecera(busqueda.nroMensaje());
+        return resu;
+    }
+
+    public ManserFinalRes getManserFinal(ClienteMensajeReq busqueda){
+        GetDataManRet miSrv = new GetDataManRet(jdbcClient);
+        ManserFinalRes resu = miSrv.getManserFinal(busqueda.nroCliente(), busqueda.nroMensaje());
+        return resu;
+    }
+
+    public RetcliFinalRes getRetcliFinal(ClienteMensajeReq busqueda){
+        GetDataManRet miSrv = new GetDataManRet(jdbcClient);
+        RetcliFinalRes resu = miSrv.getRetcliFinal(busqueda.nroCliente(), busqueda.nroMensaje());
         return resu;
     }
 

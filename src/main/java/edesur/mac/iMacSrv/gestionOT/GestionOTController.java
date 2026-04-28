@@ -2,6 +2,8 @@ package edesur.mac.iMacSrv.gestionOT;
 
 import edesur.mac.iMacSrv.gestionOT.model.request.MotivosOTsReq;
 import edesur.mac.iMacSrv.gestionOT.model.request.NroClienteReq;
+import edesur.mac.iMacSrv.gestionOT.model.request.NroMensajeReq;
+import edesur.mac.iMacSrv.gestionOT.model.request.ClienteMensajeReq;
 import edesur.mac.iMacSrv.gestionOT.model.response.*;
 
 import edesur.mac.iMacSrv.xnear.XnearController;
@@ -49,5 +51,22 @@ public class GestionOTController {
         return miData;
     }
 
+    @PostMapping("/getCabeceraManRet")
+    public DataCabeceraManRet getCabeceraManRet(@RequestBody NroMensajeReq busqueda){
+        DataCabeceraManRet miData = otSrv.getDataCabecera(busqueda);
+        return miData;
+    }
+
+    @PostMapping("/getManserFinal")
+    public ManserFinalRes getManserFinal(@RequestBody ClienteMensajeReq busqueda){
+        ManserFinalRes miData = otSrv.getManserFinal(busqueda);
+        return miData;
+    }
+
+    @PostMapping("/getRetcliFinal")
+    public RetcliFinalRes getRetcliFinal(@RequestBody ClienteMensajeReq busqueda){
+        RetcliFinalRes miData = otSrv.getRetcliFinal(busqueda);
+        return miData;
+    }
 
 }
