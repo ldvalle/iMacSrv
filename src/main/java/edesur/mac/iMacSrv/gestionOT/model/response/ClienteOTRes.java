@@ -52,5 +52,27 @@ public class ClienteOTRes {
     String descrip_voltaje;
     String acometida;
     String descrip_acometida;
+
+
+    public String getNombre(){ return (this.nombre != null) ? this.nombre.trim() : null; }
+    public String getNom_comuna(){ return (this.nom_comuna != null) ? this.nom_comuna.trim() : null; }
+    public String getNom_calle(){ return (this.nom_calle != null) ? this.nom_calle.trim() : null; }
+    public String getNom_provincia(){ return (this.nom_provincia != null) ? this.nom_provincia.trim() : null; }
+    public String getNom_sucursal(){ return (this.nom_sucursal != null) ? this.nom_sucursal.trim() : null; }
+    public String getNom_partido() { return (this.nom_partido != null) ? this.nom_partido.trim() : null; }
+    public String getNro_dir() { return (this.nro_dir != null) ? this.nro_dir.trim() : null; }
+    public String getPiso_dir() { return (this.piso_dir != null) ? this.piso_dir.trim() : null; }
+    public String getDepto_dir() { return (this.depto_dir != null) ? this.depto_dir.trim() : null; }
+    public String getNom_entre() { return (this.nom_entre != null) ? this.nom_entre.trim() : null; }
+    public String getNom_entre1() { return (this.nom_entre1 != null) ? this.nom_entre1.trim() : null; }
+    public String getNom_barrio() { return (this.nom_barrio != null) ? this.nom_barrio.trim() : null; }
+    public String getDescrip_empalme() { return (this.descrip_empalme != null) ? this.descrip_empalme.trim() : null; }
+    public String getDescrip_tipo_cliente() { return (this.descrip_tipo_cliente != null) ? this.descrip_tipo_cliente.trim() : null; }
+    public String getDescrip_voltaje() { return (this.descrip_voltaje != null) ? this.descrip_voltaje.trim() : null; }
+    public String getDescrip_acometida() { return (this.descrip_acometida != null) ? this.descrip_acometida.trim() : null; }
+    public String getObs_dir() { return (this.obs_dir != null) ? this.obs_dir.trim() : null; }
+    public String getInfo_adic_lectura() { return (this.info_adic_lectura != null) ? this.info_adic_lectura.trim() : null; }
+    public String getRut() { return (this.rut != null) ? this.rut.trim() : null; }
+
 }
 
