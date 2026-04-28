@@ -10,7 +10,7 @@ import edesur.mac.iMacSrv.gestionOT.model.response.MedidorClienteRes;
 import edesur.mac.iMacSrv.gestionOT.beans.DataClienteManRet;
 import edesur.mac.iMacSrv.gestionOT.beans.MedidorClienteManRet;
 import edesur.mac.iMacSrv.gestionOT.beans.getMotivosOT;
-
+import edesur.mac.iMacSrv.gestionOT.beans.getProcesosPendientes;
 import edesur.mac.iMacSrv.gestionOT.utils.Mapeos;
 
 import lombok.extern.slf4j.Slf4j;
@@ -49,4 +49,11 @@ public class GestionOTService {
         List<MotivosOTsRes> resu = miSrv.getMotivos(busqueda.procedimiento());
         return resu;
     }
+
+    public List<ProcesoPendienteRes> getProcesosPendientesCliente(NroClienteReq busqueda){
+        getProcesosPendientes miSrv = new getProcesosPendientes(jdbcClient);
+        List<ProcesoPendienteRes> resu = miSrv.getProcesosPendientes(busqueda.nroCliente());
+        return resu;
+    }
+
 }
