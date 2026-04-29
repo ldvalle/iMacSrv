@@ -69,4 +69,10 @@ public class GestionOTController {
         return miData;
     }
 
+    @PostMapping("/getTexton")
+    public List<TextonRes> getTexton(@RequestBody NroMensajeReq busqueda){
+        List<TextonRes> miData = otSrv.getTexton(busqueda);
+        return miData;
+    }
+
 }

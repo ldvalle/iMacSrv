@@ -4,6 +4,7 @@ import edesur.mac.iMacSrv.gestionOT.model.response.ClienteOTRes;
 import edesur.mac.iMacSrv.gestionOT.model.response.DataCabeceraManRet;
 import edesur.mac.iMacSrv.gestionOT.model.response.ManserFinalRes;
 import edesur.mac.iMacSrv.gestionOT.model.response.RetcliFinalRes;
+import edesur.mac.iMacSrv.gestionOT.model.response.TextonRes;
 import org.springframework.jdbc.core.simple.JdbcClient;
 
 import java.util.ArrayList;
@@ -11,11 +12,12 @@ import java.util.List;
 import java.util.Optional;
 public class GetDataManRet {
     private final JdbcClient jdbcClient;
+
     public GetDataManRet(JdbcClient jdbcClient) {
         this.jdbcClient = jdbcClient;
     }
 
-    public DataCabeceraManRet getDataCabecera(long nroMensaje){
+    public DataCabeceraManRet getDataCabecera(long nroMensaje) {
         StringBuilder sb = new StringBuilder(SEL_CABECERA_MAN_RET);
         List<Object> params = new ArrayList<>();
 
@@ -25,7 +27,7 @@ public class GetDataManRet {
         return resu;
     }
 
-    public ManserFinalRes getManserFinal(long nroCliente, long nroMensaje){
+    public ManserFinalRes getManserFinal(long nroCliente, long nroMensaje) {
         StringBuilder sb = new StringBuilder(SEL_MANSER_FINAL);
         List<Object> params = new ArrayList<>();
 
@@ -36,13 +38,23 @@ public class GetDataManRet {
         return resu;
     }
 
-    public RetcliFinalRes getRetcliFinal(long nroCliente, long nroMensaje){
+    public RetcliFinalRes getRetcliFinal(long nroCliente, long nroMensaje) {
         StringBuilder sb = new StringBuilder(SEL_RETCLI_FINAL);
         List<Object> params = new ArrayList<>();
 
         params.add(nroMensaje);
         params.add(nroCliente);
         RetcliFinalRes resu = jdbcClient.sql(sb.toString()).params(params).query(RetcliFinalRes.class).single();
+
+        return resu;
+    }
+
+    public List<TextonRes> getTexton(long nroMensaje){
+        StringBuilder sb = new StringBuilder(SEL_TEXTON);
+        List<Object> params = new ArrayList<>();
+
+        params.add(nroMensaje);
+        List<TextonRes> resu = jdbcClient.sql(sb.toString()).params(params).query(TextonRes.class).list();
 
         return resu;
     }
@@ -173,5 +185,11 @@ public class GetDataManRet {
             "AND funmed.voltaje = tabla.codigo " +
             "AND tabla.fecha_activacion <= TODAY " +
             "AND (tabla.fecha_desactivac > TODAY OR tabla.fecha_desactivac is NULL) ";
+
+    public static final String SEL_TEXTON = "SELECT pagina, texton FROM xnear2:pagina " +
+            "WHERE mensaje = ? " +
+            "AND servidor = 1 " +
+            "ORDER BY pagina ";
+
 
 }

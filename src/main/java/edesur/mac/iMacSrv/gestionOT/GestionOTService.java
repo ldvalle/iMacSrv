@@ -12,6 +12,7 @@ import edesur.mac.iMacSrv.gestionOT.model.response.MedidorClienteRes;
 import edesur.mac.iMacSrv.gestionOT.model.response.DataCabeceraManRet;
 import edesur.mac.iMacSrv.gestionOT.model.response.ManserFinalRes;
 import edesur.mac.iMacSrv.gestionOT.model.response.RetcliFinalRes;
+import edesur.mac.iMacSrv.gestionOT.model.response.TextonRes;
 
 import edesur.mac.iMacSrv.gestionOT.beans.DataClienteManRet;
 import edesur.mac.iMacSrv.gestionOT.beans.MedidorClienteManRet;
@@ -78,6 +79,12 @@ public class GestionOTService {
     public RetcliFinalRes getRetcliFinal(ClienteMensajeReq busqueda){
         GetDataManRet miSrv = new GetDataManRet(jdbcClient);
         RetcliFinalRes resu = miSrv.getRetcliFinal(busqueda.nroCliente(), busqueda.nroMensaje());
+        return resu;
+    }
+
+    public List<TextonRes> getTexton(NroMensajeReq busqueda){
+        GetDataManRet miSrv = new GetDataManRet(jdbcClient);
+        List<TextonRes> resu = miSrv.getTexton(busqueda.nroMensaje());
         return resu;
     }
 
