@@ -103,7 +103,8 @@ public class GetDataManRet {
             "AND r.rol = m.rol_creacion " +
             "AND r.vigencia = 'V' ";
 
-    public static final String SEL_MANSER_FINAL = "SELECT TO_CHAR(o.fecha_ejecucion, '%d/%m/%Y') fecha_ejecucion, o.otf_hora_inicio, o.otf_hora_final, " +
+    public static final String SEL_MANSER_FINAL = "SELECT TO_CHAR(o.fecha_ejecucion, '%d/%m/%Y') fecha_ejecucion, " +
+            "TO_CHAR(o.otf_hora_inicio, '%H:%M') otf_hora_inicio, TO_CHAR(o.otf_hora_final, '%H:%M') otf_hora_final, " +
             "o.otf_lect_retiro, o.otf_lect_instal, m.lectu_instal_reac, o.otf_med_distinto, " +
             "o.otf_modifica_red, o.otf_proyecto, o.cod_ejecutor, TRIM(c.nombre) nombre_ejecutor, " +
             "o.numero_med_ant, o.marca_med_ant, o.modelo_med_ant, " +
@@ -111,6 +112,9 @@ public class GetDataManRet {
             "o.serie_prec_retira, o.nro_prec_retira, o.serie_prec_coloca, o.nro_prec_coloca " +
             "FROM ot_final o, contratista c, OUTER medid m " +
             "WHERE o.mensaje_xnear = ? " +
+            "AND o.fecha_ejecucion = (select max(o2.fecha_ejecucion) from ot_final o2 " +
+            "   where o2.mensaje_xnear = o.mensaje_xnear " +
+            "   and o2.proced = o.proced) " +
             "AND c.contratista = o.cod_ejecutor[1,3] " +
             "AND c.tipo_contratista in ('O','S') " +
             "AND m.numero_medidor = o.numero_med_coloca " +
@@ -118,7 +122,8 @@ public class GetDataManRet {
             "AND m.modelo_medidor = o.modelo_med_coloca " +
             "AND m.numero_cliente = ? ";
 
-    public static final String SEL_RETCLI_FINAL = "SELECT TO_CHAR(o.fecha_ejecucion, '%d/%m/%Y') fecha_ejecucion, o.otf_hora_inicio, o.otf_hora_final, " +
+    public static final String SEL_RETCLI_FINAL = "SELECT TO_CHAR(o.fecha_ejecucion, '%d/%m/%Y') fecha_ejecucion, " +
+            "TO_CHAR(o.otf_hora_inicio, '%H:%M') otf_hora_inicio, TO_CHAR(o.otf_hora_final, '%H:%M') otf_hora_final, " +
             "o.otf_lect_retiro, o.otf_lect_instal, m.lectu_instal_reac, m.constante, m.ultima_lect_activa, o.otf_med_distinto, " +
             "m.clave_montri, m.ultima_lect_reac, o.otf_modifica_red, o.otf_proyecto, o.cod_ejecutor, TRIM(c.nombre) nombre_ejecutor, " +
             "o.numero_med_ant, o.marca_med_ant, o.modelo_med_ant, " +
@@ -131,8 +136,11 @@ public class GetDataManRet {
             "prt.numero_precinto " +
             "FROM ot_final o, contratista c, medid m, " +
             "hislec h, OUTER hislec_reac hh, OUTER prt_precintos prt, " +
-            "OUTER funmed, tabla " +
+            "OUTER (funmed, tabla) " +
             "WHERE o.mensaje_xnear = ? " +
+            "AND o.fecha_ejecucion = (select max(o2.fecha_ejecucion) from ot_final o2 " +
+            "   where o2.mensaje_xnear = o.mensaje_xnear " +
+            "   and o2.proced = o.proced) " +
             "AND c.contratista = o.cod_ejecutor[1,3] " +
             "AND c.tipo_contratista in ('O','S') " +
             "AND m.numero_medidor = o.numero_med_ant " +

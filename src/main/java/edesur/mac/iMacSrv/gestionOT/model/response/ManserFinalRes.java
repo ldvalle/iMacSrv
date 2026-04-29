@@ -8,8 +8,8 @@ import java.util.Date;
 @Setter
 public class ManserFinalRes {
     String fecha_ejecucion;
-    Date otf_hora_inicio;
-    Date otf_hora_final;
+    String otf_hora_inicio;
+    String otf_hora_final;
     Float otf_lect_retiro;
     Float otf_lect_instal;
     Float lectu_instal_reac;
