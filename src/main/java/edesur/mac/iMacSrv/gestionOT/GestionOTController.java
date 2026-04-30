@@ -75,4 +75,10 @@ public class GestionOTController {
         return miData;
     }
 
+    @PostMapping("/getMedidorRetirado")
+    public MedidorRetiradoRes getMedidorRetirado(@RequestBody ClienteMensajeReq busqueda){
+        MedidorRetiradoRes miData = otSrv.getMedidorRetirado(busqueda);
+        return miData;
+    }
+
 }

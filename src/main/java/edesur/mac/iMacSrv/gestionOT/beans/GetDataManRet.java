@@ -5,6 +5,7 @@ import edesur.mac.iMacSrv.gestionOT.model.response.DataCabeceraManRet;
 import edesur.mac.iMacSrv.gestionOT.model.response.ManserFinalRes;
 import edesur.mac.iMacSrv.gestionOT.model.response.RetcliFinalRes;
 import edesur.mac.iMacSrv.gestionOT.model.response.TextonRes;
+import edesur.mac.iMacSrv.gestionOT.model.response.MedidorRetiradoRes;
 import org.springframework.jdbc.core.simple.JdbcClient;
 
 import java.util.ArrayList;
@@ -59,6 +60,16 @@ public class GetDataManRet {
         return resu;
     }
 
+    public MedidorRetiradoRes getMedidorRetirado(long nroCliente, long nroMensaje) {
+        StringBuilder sb = new StringBuilder(SEL_MEDIDOR_RETIRADO);
+        List<Object> params = new ArrayList<>();
+
+        params.add(nroMensaje);
+        params.add(nroCliente);
+        MedidorRetiradoRes resu = jdbcClient.sql(sb.toString()).params(params).query(MedidorRetiradoRes.class).single();
+
+        return resu;
+    }
 
     private static final String SEL_CABECERA_MAN_RET = "SELECT o.mensaje_xnear, o.numero_orden, m.etapa, m.fecha_creacion, " +
             "m.rol_creacion, r.area, o.ident_etapa, o.tema, o.trabajo," +
@@ -191,5 +202,58 @@ public class GetDataManRet {
             "AND servidor = 1 " +
             "ORDER BY pagina ";
 
-
+    public static final String SEL_MEDIDOR_RETIRADO = "SELECT medid.marca_medidor, " +
+            "medid.modelo_medidor, " +
+            "medid.numero_medidor, " +
+            "medid.constante, " +
+            "medid.ultima_lect_activa, " +
+            "hislec.lectura_terreno, " +
+            "funmed.amperaje, " +
+            "tabla.descripcion descripcion_voltaje, " +
+            "medid.clave_montri, " +
+            "medid.ultima_lect_reac, " +
+            "hh.lectu_terreno_reac, " +
+            "prt.serie, " +
+            "prt.numero_precinto " +
+            "FROM ot_final o, medid, hislec, " +
+            "OUTER hislec_reac hh, " +
+            "OUTER prt_precintos prt, " +
+            "cliente, " +
+            "OUTER ( funmed, tabla ) " +
+            "WHERE o.mensaje_xnear = ? " +
+            "AND o.fecha_ejecucion = (select max(o2.fecha_ejecucion) from ot_final o2" +
+            "   where o2.mensaje_xnear = o.mensaje_xnear " +
+            "   and o2.proced = o.proced) " +
+            "AND medid.numero_medidor = o.numero_med_ant " +
+            "AND medid.marca_medidor = o.marca_med_ant " +
+            "AND medid.modelo_medidor = o.modelo_med_ant " +
+            "AND medid.numero_cliente = ? " +
+            "AND hislec.numero_cliente = medid.numero_cliente " +
+            "AND hislec.numero_medidor = medid.numero_medidor " +
+            "AND hislec.marca_medidor = medid.marca_medidor " +
+            "AND hh.numero_cliente = hislec.numero_cliente " +
+            "AND hh.numero_medidor = hislec.numero_medidor " +
+            "AND hh.marca_medidor = hislec.marca_medidor " +
+            "AND hh.corr_facturacion = hislec.corr_facturacion " +
+            "AND prt.numero_medidor = medid.numero_medidor " +
+            "AND prt.marca = medid.marca_medidor " +
+            "AND prt.modelo = medid.modelo_medidor " +
+            "AND prt.estado_actual = '08' " +
+            "AND cliente.numero_cliente =medid.numero_cliente " +
+            "AND hislec.fecha_lectura = (SELECT max(h2.fecha_lectura) " +
+            "    FROM hislec h2 " +
+            "    WHERE h2.numero_cliente = medid.numero_cliente " +
+            "    AND h2.numero_medidor = medid.numero_medidor " +
+            "    AND h2.marca_medidor = medid.marca_medidor ) " +
+            "AND funmed.codigo = (SELECT cla_codigo[1,1] " +
+            "    FROM medidor " +
+            "    WHERE med_numero = medid.numero_medidor " +
+            "    AND mar_codigo = medid.marca_medidor " +
+            "    AND mod_codigo = medid.modelo_medidor) " +
+            "AND tabla.nomtabla = 'VOLTA' " +
+            "AND tabla.sucursal = '0000' " +
+            "AND funmed.voltaje = tabla.codigo " +
+            "AND tabla.fecha_activacion <= TODAY " +
+            "AND (tabla.fecha_desactivac > TODAY OR tabla.fecha_desactivac is NULL) ";
+    
 }
