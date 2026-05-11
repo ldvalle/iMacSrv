@@ -12,6 +12,7 @@ public class DataCabeceraManRet {
     String etapa;
     Date fecha_creacion;
     String rol_creacion;
+    String rol_actual;
     String area;
     String ident_etapa;
     String tema;

@@ -72,7 +72,7 @@ public class GetDataManRet {
     }
 
     private static final String SEL_CABECERA_MAN_RET = "SELECT o.mensaje_xnear, o.numero_orden, m.etapa, m.fecha_creacion, " +
-            "m.rol_creacion, r.area, o.ident_etapa, o.tema, o.trabajo," +
+            "m.rol_creacion, m.rol_actual, r.area, o.ident_etapa, o.tema, o.trabajo," +
             "CASE " +
             "   WHEN o.tipo_orden = 'MAN' then " +
             "        (select trim(t1.descripcion) from tabla t1 " +
