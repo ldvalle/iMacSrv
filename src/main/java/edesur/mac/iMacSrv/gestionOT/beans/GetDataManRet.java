@@ -72,7 +72,7 @@ public class GetDataManRet {
     }
 
     private static final String SEL_CABECERA_MAN_RET = "SELECT o.mensaje_xnear, o.numero_orden, m.etapa, m.fecha_creacion, " +
-            "m.rol_creacion, m.rol_actual, r.area, o.ident_etapa, o.tema, o.trabajo," +
+            "m.rol_creacion, m.rol_actual, o.area_emisora area, o.ident_etapa, o.tema, o.trabajo," +
             "CASE " +
             "   WHEN o.tipo_orden = 'MAN' then " +
             "        (select trim(t1.descripcion) from tabla t1 " +
@@ -96,7 +96,7 @@ public class GetDataManRet {
             "   WHEN o.ident_etapa != 'RQ' AND o.tipo_orden = 'RET' THEN " +
             "      (select 'SR' || lpad(p.otf_nro_orden, 10, 0) from ot_final p " +
             "        where p.mensaje_xnear = m.mensaje) " +
-            "END nro_orden, " +
+            "END nro_orden_sap, " +
             "CASE " +
             "   WHEN o.ident_etapa = 'RQ' THEN " +
             "        (select upper(trim(s.descripcion)) from ot_mac p, ot_status s " +
