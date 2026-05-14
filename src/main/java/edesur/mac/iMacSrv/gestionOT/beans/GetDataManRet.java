@@ -119,7 +119,7 @@ public class GetDataManRet {
             "        (select p.otf_tipo_traba from ot_final p " +
             "        where p.mensaje_xnear = m.mensaje) " +
             "END tipo_trabajo, " +
-            "o.numero_cliente " +
+            "o.numero_cliente, o.sfc_caso " +
             "FROM xnear2:mensaje m, orden o, OUTER rol r " +
             "WHERE m.mensaje = ? " +
             "AND o.mensaje_xnear = m.mensaje " +

@@ -23,6 +23,7 @@ public class DataCabeceraManRet {
     String fecha_vto;
     String tipo_trabajo;
     long numero_cliente;
+    Long sfc_caso;
 
     public String getRol_creacion(){ return (this.rol_creacion != null) ? this.rol_creacion.trim() : null; }
     public String getDesc_motivo(){ return (this.desc_motivo != null) ? this.desc_motivo.trim() : null; }
