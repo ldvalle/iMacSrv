@@ -231,10 +231,12 @@ public class GetDataManRet {
             "AND hislec.numero_cliente = medid.numero_cliente " +
             "AND hislec.numero_medidor = medid.numero_medidor " +
             "AND hislec.marca_medidor = medid.marca_medidor " +
+            "AND hislec.tipo_lectura = 5 " +
             "AND hh.numero_cliente = hislec.numero_cliente " +
             "AND hh.numero_medidor = hislec.numero_medidor " +
             "AND hh.marca_medidor = hislec.marca_medidor " +
             "AND hh.corr_facturacion = hislec.corr_facturacion " +
+            "AND hh.tipo_lectura = 5 " +
             "AND prt.numero_medidor = medid.numero_medidor " +
             "AND prt.marca = medid.marca_medidor " +
             "AND prt.modelo = medid.modelo_medidor " +
@@ -244,7 +246,8 @@ public class GetDataManRet {
             "    FROM hislec h2 " +
             "    WHERE h2.numero_cliente = medid.numero_cliente " +
             "    AND h2.numero_medidor = medid.numero_medidor " +
-            "    AND h2.marca_medidor = medid.marca_medidor ) " +
+            "    AND h2.marca_medidor = medid.marca_medidor  " +
+            "    AND h2.tipo_lectura = hislec.tipo_lectura ) " +
             "AND funmed.codigo = (SELECT cla_codigo[1,1] " +
             "    FROM medidor " +
             "    WHERE med_numero = medid.numero_medidor " +
