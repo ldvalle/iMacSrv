@@ -65,7 +65,7 @@ public class GetDataManRet {
         List<Object> params = new ArrayList<>();
 
         params.add(nroMensaje);
-        params.add(nroCliente);
+        //params.add(nroCliente);
         MedidorRetiradoRes resu = jdbcClient.sql(sb.toString()).params(params).query(MedidorRetiradoRes.class).single();
 
         return resu;
@@ -227,7 +227,7 @@ public class GetDataManRet {
             "AND medid.numero_medidor = o.numero_med_ant " +
             "AND medid.marca_medidor = o.marca_med_ant " +
             "AND medid.modelo_medidor = o.modelo_med_ant " +
-            "AND medid.numero_cliente = ? " +
+            //"AND medid.numero_cliente = ? " +
             "AND hislec.numero_cliente = medid.numero_cliente " +
             "AND hislec.numero_medidor = medid.numero_medidor " +
             "AND hislec.marca_medidor = medid.marca_medidor " +
