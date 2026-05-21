@@ -90,7 +90,6 @@ public class GetDataManRet {
 
         if(procedimiento.trim().toUpperCase().equals("MANSER") || procedimiento.trim().toUpperCase().equals("RETCLI")){
             obs = strT.getCampo(sCadena, 24, "þ");
-            System.out.println("el campo sin parsear [" + obs + "]");
         }
 
         obs = obs.replaceAll("\\r\\n", " ");
