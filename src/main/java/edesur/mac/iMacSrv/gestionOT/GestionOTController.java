@@ -1,9 +1,6 @@
 package edesur.mac.iMacSrv.gestionOT;
 
-import edesur.mac.iMacSrv.gestionOT.model.request.MotivosOTsReq;
-import edesur.mac.iMacSrv.gestionOT.model.request.NroClienteReq;
-import edesur.mac.iMacSrv.gestionOT.model.request.NroMensajeReq;
-import edesur.mac.iMacSrv.gestionOT.model.request.ClienteMensajeReq;
+import edesur.mac.iMacSrv.gestionOT.model.request.*;
 import edesur.mac.iMacSrv.gestionOT.model.response.*;
 
 import edesur.mac.iMacSrv.xnear.XnearController;
@@ -81,4 +78,9 @@ public class GestionOTController {
         return miData;
     }
 
+    @PostMapping("/getObservaTexton")
+    public String getObservaTexton(@RequestBody MensajeProcedimiento busqueda){
+        String miData = otSrv.getObservaTexton(busqueda);
+        return miData;
+    }
 }

@@ -6,11 +6,13 @@ import edesur.mac.iMacSrv.gestionOT.model.response.ManserFinalRes;
 import edesur.mac.iMacSrv.gestionOT.model.response.RetcliFinalRes;
 import edesur.mac.iMacSrv.gestionOT.model.response.TextonRes;
 import edesur.mac.iMacSrv.gestionOT.model.response.MedidorRetiradoRes;
-import org.springframework.jdbc.core.simple.JdbcClient;
+import edesur.mac.iMacSrv.gestionOT.utils.StringTools;
 
+import org.springframework.jdbc.core.simple.JdbcClient;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
 public class GetDataManRet {
     private final JdbcClient jdbcClient;
 
@@ -70,6 +72,34 @@ public class GetDataManRet {
 
         return resu;
     }
+
+    public String getObservaTexton(long nroMensaje, String procedimiento){
+        StringTools strT = new StringTools();
+        String sCadena="";
+        String obs="";
+
+        StringBuilder sb = new StringBuilder(SEL_TEXTON);
+        List<Object> params = new ArrayList<>();
+
+        params.add(nroMensaje);
+        List<TextonRes> resu = jdbcClient.sql(sb.toString()).params(params).query(TextonRes.class).list();
+
+        for(TextonRes fila : resu){
+            sCadena += fila.getTexton();
+        }
+
+        if(procedimiento.trim().toUpperCase().equals("MANSER") || procedimiento.trim().toUpperCase().equals("RETCLI")){
+            obs = strT.getCampo(sCadena, 24, "þ");
+            System.out.println("el campo sin parsear [" + obs + "]");
+        }
+
+        obs = obs.replaceAll("\\r\\n", " ");
+        obs = obs.replaceAll("\\t", " ");
+        obs = obs.replaceAll("\\n", " ");
+
+        return obs;
+    }
+
 
     private static final String SEL_CABECERA_MAN_RET = "SELECT o.mensaje_xnear, o.numero_orden, m.etapa, m.fecha_creacion, " +
             "m.rol_creacion, m.rol_actual, o.area_emisora area, o.ident_etapa, o.tema, o.trabajo," +

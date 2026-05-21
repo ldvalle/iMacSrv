@@ -6,6 +6,7 @@ import edesur.mac.iMacSrv.gestionOT.model.response.ClienteOTRes;
 import edesur.mac.iMacSrv.gestionOT.model.response.MotivosOTsRes;
 import edesur.mac.iMacSrv.gestionOT.model.request.NroClienteReq;
 import edesur.mac.iMacSrv.gestionOT.model.request.ClienteMensajeReq;
+import edesur.mac.iMacSrv.gestionOT.model.request.MensajeProcedimiento;
 
 import edesur.mac.iMacSrv.gestionOT.model.response.ProcesoPendienteRes;
 import edesur.mac.iMacSrv.gestionOT.model.response.MedidorClienteRes;
@@ -95,4 +96,9 @@ public class GestionOTService {
         return resu;
     }
 
+    public String getObservaTexton(MensajeProcedimiento busqueda){
+        GetDataManRet miSrv = new GetDataManRet(jdbcClient);
+        String resu = miSrv.getObservaTexton(busqueda.nroMensaje(), busqueda.procedimiento());
+        return resu;
+    }
 }
