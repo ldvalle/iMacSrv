@@ -3,6 +3,7 @@ package edesur.mac.iMacSrv.xnear.beans;
 import edesur.mac.iMacSrv.xnear.model.response.rolResponse;
 import edesur.mac.iMacSrv.xnear.model.response.ListaRoles;
 import edesur.mac.iMacSrv.xnear.model.response.Tarea;
+import edesur.mac.iMacSrv.xnear.model.internal.rolMac;
 
 import org.springframework.jdbc.core.simple.JdbcClient;
 
@@ -49,6 +50,16 @@ public class ValidacionRol {
         return resu;
     }
 
+    public rolMac getDataRol(String sRol){
+        StringBuilder sb = new StringBuilder(SEL_ROL_DATA);
+        List<Object> params = new ArrayList<>();
+
+        params.add(sRol.trim().toUpperCase());
+        rolMac resu = jdbcClient.sql(sb.toString()).params(params).query(rolMac.class).single();
+
+        return resu;
+    }
+
     private static final String SEL_VAL_ROL = "SELECT 'OK' resultado, rol, password FROM rol " +
         "WHERE rol = ? " +
         "AND vigencia = 'S' ";
@@ -72,5 +83,12 @@ public class ValidacionRol {
             "AND r.mensaje=m.mensaje " +
             "AND r.carpeta=m.rol_actual " +
             "ORDER BY 1 DESC ";
+
+    private static final String SEL_ROL_DATA = "SELECT r.rol, r.nombre, r.area, r.carpeta_salida, s.sucursal " +
+            "FROM rol r, sucar s " +
+            "WHERE r.rol = ? " +
+            "AND r.vigencia = 'S' " +
+            "AND s.area = r.area ";
+
 
 }
