@@ -1,6 +1,7 @@
 package edesur.mac.iMacSrv.gestionOT.beans;
 
 import edesur.mac.iMacSrv.gestionOT.model.response.ClienteOTRes;
+import io.undertow.security.handlers.CachedAuthenticatedSessionHandler;
 import org.springframework.jdbc.core.simple.JdbcClient;
 
 import java.util.ArrayList;
@@ -74,9 +75,13 @@ public class DataClienteManRet {
             "tc.codigo_voltaje, " +
             "TRIM(t1.descripcion) descrip_voltaje, " +
             "tc.acometida, " +
-            "t2.descripcion descrip_acometida " +
+            "t2.descripcion descrip_acometida, " +
+            "CASE " +
+            "   WHEN r.codigo IS NOT NULL THEN 'S' " +
+            "   ELSE 'N' "+
+            "END man_ret_pendiente " +
             "FROM cliente, OUTER ot_sucursal, OUTER tabla tabemp , OUTER tabla tabtip, " +
-            "OUTER (tecni tc, OUTER tabla t1, OUTER tabla t2) " +
+            "OUTER (tecni tc, OUTER tabla t1, OUTER tabla t2), OUTER retcli r " +
             "WHERE cliente.numero_cliente = ?" +
             "AND ot_sucursal.suc_hijo = cliente.sucursal " +
             "AND (tabemp.codigo = cliente.tipo_empalme " +
@@ -93,6 +98,7 @@ public class DataClienteManRet {
             "AND t2.nomtabla = 'TIRED' " +
             "AND t2.sucursal = '0000' " +
             "AND t2.codigo = tc.acometida " +
-            "AND t2.fecha_desactivac IS NULL ";
+            "AND t2.fecha_desactivac IS NULL " +
+            "AND r.numero_cliente = cliente.numero_cliente ";
 
 }

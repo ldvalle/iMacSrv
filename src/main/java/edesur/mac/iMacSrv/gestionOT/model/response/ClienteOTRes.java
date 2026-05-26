@@ -52,6 +52,7 @@ public class ClienteOTRes {
     String descrip_voltaje;
     String acometida;
     String descrip_acometida;
+    String man_ret_pendiente;
 
 
     public String getNombre(){ return (this.nombre != null) ? this.nombre.trim() : null; }
