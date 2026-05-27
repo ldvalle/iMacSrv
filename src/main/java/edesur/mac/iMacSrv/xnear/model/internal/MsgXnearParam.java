@@ -7,12 +7,18 @@ import lombok.Setter;
 @Setter
 public class MsgXnearParam {
     long   nroMensaje;
+    String procedimiento;
+    String etapa;
+    short  privacidad;
+    short  urgencia;
+    String encriptado;
+    String referencia;
     String rolOrigen;
     String areaRolOrigen;
     String carpetaDestino;
     String areaCarpetaDestino;
-    String procedimiento;
-    String etapa;
-    String referencia;
-    String observaciones;
+    short  empCon;
+    short  empOrg;
+    short  empDest;
+    String texton;
 }

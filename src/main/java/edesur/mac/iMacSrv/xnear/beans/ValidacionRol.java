@@ -60,6 +60,18 @@ public class ValidacionRol {
         return resu;
     }
 
+    public String getCarpetaSalida(String procedimiento, String sucursal){
+        StringBuilder sb = new StringBuilder(SEL_CARPETA_SALIDA);
+        List<Object> params = new ArrayList<>();
+
+        params.add(procedimiento.trim().toUpperCase());
+        params.add(sucursal.trim().toUpperCase());
+
+        String resu = jdbcClient.sql(sb.toString()).params(params).query(String.class).single();
+
+        return resu;
+    }
+
     private static final String SEL_VAL_ROL = "SELECT 'OK' resultado, rol, password FROM rol " +
         "WHERE rol = ? " +
         "AND vigencia = 'S' ";
@@ -90,5 +102,10 @@ public class ValidacionRol {
             "AND r.vigencia = 'S' " +
             "AND s.area = r.area ";
 
+    private static final String SEL_CARPETA_SALIDA = "SELECT otx_carpeta " +
+            "FROM ot_xpro_accion " +
+            "WHERE otx_proced = ? " +
+            "AND otx_sucursal = ? " +
+            "AND otx_accion = '10' ";
 
 }

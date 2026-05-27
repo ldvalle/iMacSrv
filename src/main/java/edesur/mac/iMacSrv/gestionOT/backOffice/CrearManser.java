@@ -4,8 +4,11 @@ import edesur.mac.iMacSrv.gestionOT.beans.DataClienteManRet;
 import edesur.mac.iMacSrv.gestionOT.beans.getMotivosOT;
 import edesur.mac.iMacSrv.gestionOT.model.request.EnviaManserReq;
 import edesur.mac.iMacSrv.gestionOT.model.response.FeedBackRes;
-
 import edesur.mac.iMacSrv.gestionOT.model.response.ClienteOTRes;
+
+import edesur.mac.iMacSrv.xnear.model.internal.rolMac;
+import edesur.mac.iMacSrv.xnear.model.internal.MsgXnearParam;
+import edesur.mac.iMacSrv.xnear.beans.ValidacionRol;
 
 import org.springframework.jdbc.core.simple.JdbcClient;
 import java.util.ArrayList;
@@ -19,6 +22,7 @@ public class CrearManser {
     }
 
     public FeedBackRes CrearManser(EnviaManserReq dataIn){
+        ValidacionRol srvRol = new ValidacionRol(jdbcClient);
         FeedBackRes dataOut=null;
         ClienteOTRes dataCliente = null;
         String viajaSAP="";
@@ -40,6 +44,26 @@ public class CrearManser {
             return dataOut;
         }
         viajaSAP=dataOut.getMensaje().trim();
+
+        MsgXnearParam xnearParam = new MsgXnearParam();
+        xnearParam.setProcedimiento("MANSER");
+        xnearParam.setEtapa("INICIO");
+
+        //-- Obtener datos del rol origen
+        rolMac regRolOrigen = srvRol.getDataRol(dataIn.rolOrigen().toUpperCase().trim());
+        xnearParam.setRolOrigen(dataIn.rolOrigen().toUpperCase().trim());
+        xnearParam.setAreaRolOrigen(regRolOrigen.getArea());
+
+        //-- Obtener carpeta salida
+        xnearParam.setCarpetaDestino(srvRol.getCarpetaSalida("MANSER", dataCliente.getSucursal()));
+
+        //-- obtener datos de la carpeta salida
+        rolMac regRolDestino = srvRol.getDataRol(xnearParam.getCarpetaDestino());
+        xnearParam.setAreaCarpetaDestino(regRolDestino.getArea());
+
+        String sReferencia = "(MANSER) Cliente: " + dataCliente.getNumero_cliente() + "-" + dataCliente.getDv_numero_cliente();
+        xnearParam.setReferencia(sReferencia);
+
 
         //-- Crear el Manser y luego generar OT
 
