@@ -9,6 +9,7 @@ import edesur.mac.iMacSrv.gestionOT.model.response.ClienteOTRes;
 import edesur.mac.iMacSrv.xnear.model.internal.rolMac;
 import edesur.mac.iMacSrv.xnear.model.internal.MsgXnearParam;
 import edesur.mac.iMacSrv.xnear.beans.ValidacionRol;
+import edesur.mac.iMacSrv.xnear.backOffice.MensajeXnear;
 
 import org.springframework.jdbc.core.simple.JdbcClient;
 import java.util.ArrayList;
@@ -64,6 +65,9 @@ public class CrearManser {
         String sReferencia = "(MANSER) Cliente: " + dataCliente.getNumero_cliente() + "-" + dataCliente.getDv_numero_cliente();
         xnearParam.setReferencia(sReferencia);
 
+        //-- Obtener Nro.Mensaje Xnear
+        MensajeXnear srvMsg = new MensajeXnear(jdbcClient);
+        xnearParam.setNroMensaje(srvMsg.getNroMensaje("MANSER"));
 
         //-- Crear el Manser y luego generar OT
 
