@@ -5,9 +5,12 @@ import edesur.mac.iMacSrv.gestionOT.beans.getMotivosOT;
 import edesur.mac.iMacSrv.gestionOT.model.request.EnviaManserReq;
 import edesur.mac.iMacSrv.gestionOT.model.response.FeedBackRes;
 import edesur.mac.iMacSrv.gestionOT.model.response.ClienteOTRes;
+import edesur.mac.iMacSrv.gestionOT.model.internal.OrdenDTO;
+import edesur.mac.iMacSrv.gestionOT.backOffice.CrearOrden;
 
 import edesur.mac.iMacSrv.xnear.model.internal.rolMac;
 import edesur.mac.iMacSrv.xnear.model.internal.MsgXnearParam;
+
 import edesur.mac.iMacSrv.xnear.beans.ValidacionRol;
 import edesur.mac.iMacSrv.xnear.backOffice.MensajeXnear;
 
@@ -15,6 +18,9 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.annotation.Transactional;
 
 public class CrearManser {
     private final JdbcClient jdbcClient;
@@ -69,9 +75,62 @@ public class CrearManser {
         MensajeXnear srvMsg = new MensajeXnear(jdbcClient);
         xnearParam.setNroMensaje(srvMsg.getNroMensaje("MANSER"));
 
-        //-- Crear el Manser y luego generar OT
+        //-- Crear la Orden
+        CrearOrden srvOrden = new CrearOrden(jdbcClient);
+        String sNroOrden = srvOrden.getNroOrden("MAN", xnearParam.getAreaRolOrigen());
+        OrdenDTO regOrden = setOrdenDTO(dataIn, xnearParam, sNroOrden);
+
+        //-- Grabar todas las tablas que definen la OT
+
 
         return dataOut;
+    }
+
+    private OrdenDTO setOrdenDTO(EnviaManserReq regRQ, MsgXnearParam regXn, String sNroOrden ){
+        OrdenDTO reg = new OrdenDTO();
+        String codMotivo = regRQ.codMotivo();
+
+        reg.setTipo_orden("MAN");
+        reg.setIdent_etapa("RQ");
+        //reg.setDuracion("0"); es un DATATIME pero al iniciar le graban un string="0". Lo hare en el query.
+        reg.setMensaje_xnear(regXn.getNroMensaje());
+        reg.setServidor(1);
+        reg.setSucursal(regXn.getAreaRolOrigen());
+        reg.setArea_emisora(regXn.getAreaRolOrigen());
+        //reg.setFecha_inicio(); ponemos un CURRENT en el query.
+        reg.setTerm_dir(regXn.getRolOrigen());
+        reg.setArea_ejecutora(regXn.getAreaRolOrigen());
+        reg.setEstado("INICIO");
+        reg.setRol_usuario(regRQ.rolOrigen().trim().toUpperCase());
+        reg.setTema(codMotivo.substring(0,4));
+        reg.setTrabajo(codMotivo.substring(4));
+        reg.setNumero_cliente(regRQ.nroCliente());
+
+        return reg;
+    }
+
+    @Transactional
+    private FeedBackRes GrabarManser(EnviaManserReq regRQ, MsgXnearParam regXn, OrdenDTO regOrden, String viajaSAP){
+        FeedBackRes resu = new FeedBackRes();
+
+        resu.setCodResultado("KO");
+        resu.setMensaje("Operacion MANSER no iniciada");
+
+        //-- Grabar la Orden
+
+        //-- Grabar tabla RETCLI
+
+        //-- Grabar OT_MAC
+
+        //-- Grabar OT_HISEVEN
+
+        //-- Grabar OT_MAC_SAP u OT_MAC_PEND
+
+        //-- Enviar Mensaje Xnear ver si este es afuera de la transaccion
+
+
+
+        return resu;
     }
 
 

@@ -3,6 +3,7 @@ package edesur.mac.iMacSrv.gestionOT.backOffice;
 import edesur.mac.iMacSrv.xnear.model.internal.MsgCreacion;
 
 import edesur.mac.iMacSrv.gestionOT.utils.StringTools;
+import edesur.mac.iMacSrv.gestionOT.model.internal.OrdenDTO;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,9 +67,6 @@ public class CrearOrden {
             }
 
         }
-
-
-
         return sNroOrden;
     }
 
