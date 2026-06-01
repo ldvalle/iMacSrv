@@ -84,7 +84,7 @@ public class CrearOrden {
         try {
             jdbcClient.sql(INS_ORDEN).params(params).update();
         }catch (Exception e){
-            System.out.println("ERROR al insertar en ORDEN para Mensaje " + reg.getSfc_nro_orden() + "\n" + e.getMessage());
+            System.out.println("ERROR al insertar en ORDEN para Mensaje " + reg.getMensaje_xnear() + "\n" + e.getMessage());
             return false;
         }
 

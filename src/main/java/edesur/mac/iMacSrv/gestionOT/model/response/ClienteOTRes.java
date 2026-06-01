@@ -53,6 +53,7 @@ public class ClienteOTRes {
     String acometida;
     String descrip_acometida;
     String man_ret_pendiente;
+    String tipo_conexion;
 
 
     public String getNombre(){ return (this.nombre != null) ? this.nombre.trim() : null; }
@@ -74,6 +75,7 @@ public class ClienteOTRes {
     public String getObs_dir() { return (this.obs_dir != null) ? this.obs_dir.trim() : null; }
     public String getInfo_adic_lectura() { return (this.info_adic_lectura != null) ? this.info_adic_lectura.trim() : null; }
     public String getRut() { return (this.rut != null) ? this.rut.trim() : null; }
+    public String getTipoConexion() { return (this.tipo_conexion != null) ? this.tipo_conexion.trim() : null; }
 
 }
 

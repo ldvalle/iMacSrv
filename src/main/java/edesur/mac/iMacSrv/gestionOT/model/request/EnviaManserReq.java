@@ -1,12 +1,14 @@
 package edesur.mac.iMacSrv.gestionOT.model.request;
 
 import java.util.Date;
+import java.time.LocalDate;
 
 public record EnviaManserReq(
         long nroMensaje,
         long nroCliente,
         String rolOrigen,
         String codMotivo,
-        Date fechaVto,
+        LocalDate fechaVto,
+        String codTension,
         String codAcometida,
         String observaciones) { }

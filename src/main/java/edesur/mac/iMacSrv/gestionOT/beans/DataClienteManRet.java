@@ -79,7 +79,8 @@ public class DataClienteManRet {
             "CASE " +
             "   WHEN r.codigo IS NOT NULL THEN 'S' " +
             "   ELSE 'N' "+
-            "END man_ret_pendiente " +
+            "END man_ret_pendiente, " +
+            "tecni.tipo_conexion " +
             "FROM cliente, OUTER ot_sucursal, OUTER tabla tabemp , OUTER tabla tabtip, " +
             "OUTER (tecni tc, OUTER tabla t1, OUTER tabla t2), OUTER retcli r " +
             "WHERE cliente.numero_cliente = ?" +

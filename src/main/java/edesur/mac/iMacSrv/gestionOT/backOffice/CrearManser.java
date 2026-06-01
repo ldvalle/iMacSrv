@@ -6,6 +6,7 @@ import edesur.mac.iMacSrv.gestionOT.model.request.EnviaManserReq;
 import edesur.mac.iMacSrv.gestionOT.model.response.FeedBackRes;
 import edesur.mac.iMacSrv.gestionOT.model.response.ClienteOTRes;
 import edesur.mac.iMacSrv.gestionOT.model.internal.OrdenDTO;
+import edesur.mac.iMacSrv.gestionOT.model.internal.OTMacDTO;
 import edesur.mac.iMacSrv.gestionOT.backOffice.CrearOrden;
 
 import edesur.mac.iMacSrv.xnear.model.internal.rolMac;
@@ -14,7 +15,13 @@ import edesur.mac.iMacSrv.xnear.model.internal.MsgXnearParam;
 import edesur.mac.iMacSrv.xnear.beans.ValidacionRol;
 import edesur.mac.iMacSrv.xnear.backOffice.MensajeXnear;
 
+import edesur.mac.iMacSrv.gestionOT.utils.DateTools;
+import edesur.mac.iMacSrv.gestionOT.utils.StringTools;
+
 import org.springframework.jdbc.core.simple.JdbcClient;
+import java.util.Date;
+import java.time.LocalDate;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -80,6 +87,7 @@ public class CrearManser {
         String sNroOrden = srvOrden.getNroOrden("MAN", xnearParam.getAreaRolOrigen());
         OrdenDTO regOrden = setOrdenDTO(dataIn, xnearParam, sNroOrden);
 
+
         //-- Grabar todas las tablas que definen la OT
 
 
@@ -110,7 +118,7 @@ public class CrearManser {
     }
 
     @Transactional
-    private FeedBackRes GrabarManser(EnviaManserReq regRQ, MsgXnearParam regXn, OrdenDTO regOrden, String viajaSAP){
+    private FeedBackRes GrabarManser(EnviaManserReq regRQ, MsgXnearParam regXn, OrdenDTO regOrden, String viajaSAP, ClienteOTRes regCliente){
         FeedBackRes resu = new FeedBackRes();
 
         resu.setCodResultado("KO");
@@ -119,7 +127,7 @@ public class CrearManser {
         //-- Grabar la Orden
         CrearOrden srvOrden = new CrearOrden(jdbcClient);
         if( ! srvOrden.insertaOrden(regOrden)){
-            resu.setMensaje("ERROR Fallo el insert en la tabla ORDEN para mensaje Xnear " + regXn.getNroMensaje());
+            resu.setMensaje("ERROR Fallo el insert en la tabla ORDEN para el cliente " + regOrden.getNumero_cliente());
             return resu;
         }
 
@@ -130,6 +138,17 @@ public class CrearManser {
         }
 
         //-- Grabar OT_MAC
+        OTMacDTO regOTMac = setOtMac(regRQ, regCliente, regXn, viajaSAP);
+        CrearOT srvOT = new CrearOT(jdbcClient);
+
+        if(!srvOT.insertOtMac(regOTMac)){
+            resu.setMensaje("ERROR Fallo el insert en la tabla OT_MAC para Cliente " + regOrden.getNumero_cliente());
+            return resu;
+        }
+
+        long lNroOrdenOT = srvOT.getUltOt(regXn.getNroMensaje());
+        StringTools srvStr = new StringTools();
+        String sNroOrdenSAP = "SC" + srvStr.padLeftZeros( Long.toString(lNroOrdenOT), 10);
 
         //-- Grabar OT_HISEVEN
 
@@ -174,6 +193,56 @@ public class CrearManser {
 
 
         return true;
+    }
+
+    private OTMacDTO setOtMac(EnviaManserReq regIN, ClienteOTRes regCli, MsgXnearParam regMsg, String viajaSAP){
+        OTMacDTO regOTMac = new OTMacDTO();
+        String sTrabajo="";
+        LocalDate dFechaVto=null;
+        String sTension="";
+
+        if(regIN.codTension().equals("M")){
+            sTrabajo="SC01";
+        }else{
+            sTrabajo="SC02";
+        }
+        if(regIN.fechaVto()!= null){
+            LocalDate fechaHoy = LocalDate.now();
+
+            DateTools srvDate = new DateTools();
+            dFechaVto=srvDate.sumaDias(fechaHoy, 10);
+        }else{
+            dFechaVto=regIN.fechaVto();
+        }
+
+        if(regIN.codTension().equals("T")){
+            sTension="3";
+        }else{
+            sTension="1";
+        }
+
+        regOTMac.setOt_numero_cliente(regCli.getNumero_cliente());
+        regOTMac.setOt_mensaje_xnear(regMsg.getNroMensaje());
+        regOTMac.setOt_proced("MANSER");
+        regOTMac.setOt_envia_sap(viajaSAP);
+        regOTMac.setOt_sucursal_padre(regCli.getSuc_padre());
+        regOTMac.setOt_sucursal(regCli.getSucursal());
+        regOTMac.setOt_sector(regCli.getSector());
+        regOTMac.setOt_zona(regCli.getZona());
+        regOTMac.setOt_corr_ruta(regCli.getCorrelativo_ruta());
+        regOTMac.setOt_tipo_traba(sTrabajo);
+        regOTMac.setOt_area_interloc(regMsg.getAreaCarpetaDestino());
+        regOTMac.setOt_motivo(regIN.codMotivo());
+        regOTMac.setOt_rol_ejecuta(regMsg.getRolOrigen());
+        regOTMac.setOt_area_ejecuta(regMsg.getAreaRolOrigen());
+        regOTMac.setOt_potencia(regCli.getPotencia_contrato());
+        regOTMac.setOt_tension(sTension);
+        regOTMac.setOt_acometida(regCli.getAcometida());
+        regOTMac.setOt_toma(regCli.getTipo_empalme());
+        regOTMac.setOt_conexion(regCli.getTipo_conexion());
+        regOTMac.setOt_fecha_vto(dFechaVto);
+
+        return regOTMac;
     }
 
 
