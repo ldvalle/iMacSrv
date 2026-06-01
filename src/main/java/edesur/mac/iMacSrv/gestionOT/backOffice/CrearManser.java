@@ -117,8 +117,17 @@ public class CrearManser {
         resu.setMensaje("Operacion MANSER no iniciada");
 
         //-- Grabar la Orden
+        CrearOrden srvOrden = new CrearOrden(jdbcClient);
+        if( ! srvOrden.insertaOrden(regOrden)){
+            resu.setMensaje("ERROR Fallo el insert en la tabla ORDEN para mensaje Xnear " + regXn.getNroMensaje());
+            return resu;
+        }
 
         //-- Grabar tabla RETCLI
+        if(!grabaRetcli(regOrden.getNumero_cliente())){
+            resu.setMensaje("ERROR Fallo el insert en la tabla RETCLI para Cliente " + regOrden.getNumero_cliente());
+            return resu;
+        }
 
         //-- Grabar OT_MAC
 
@@ -153,4 +162,22 @@ public class CrearManser {
 
         return resuCliente;
     }
+
+    private boolean grabaRetcli(long nroCliente ){
+
+        try {
+            jdbcClient.sql(INS_RETCLI).params(nroCliente, "C").update();
+        }catch (Exception e){
+            System.out.println("ERROR al insertar en tabla RETCLI para Cliente " + nroCliente + "\n" + e.getMessage());
+            return false;
+        }
+
+
+        return true;
+    }
+
+
+    private static final String INS_RETCLI = "INSERT retcli (numero_cliente, codigo )VALUES( ?, ? ) ";
+
+
 }
