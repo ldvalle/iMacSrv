@@ -73,6 +73,16 @@ public class CrearOT {
         return nroOrden;
     }
 
+    public boolean insertOtHiseven(long nroOrden, long nroCliente){
+
+        try {
+            jdbcClient.sql(INS_OT_HISEVEN).params(nroOrden, nroCliente).update();
+        }catch (Exception e){
+            System.out.println("ERROR al insertar en OT_HISEVEN para orden nro. " + nroOrden + "\n" + e.getMessage());
+            return false;
+        }
+        return true;
+    }
 
     private final static String INS_OT_MAC = "INSERT INTO ot_mac ( " +
             "ot_numero_cliente, " +
@@ -107,4 +117,19 @@ public class CrearOT {
             "?,?,?,?,?,?,?,?) ";
 
     private final static String SEL_ULT_OT = "SELECT MAX(ot_nro_orden) FROM ot_mac WHERE ot_mensaje_xnear = ? ";
+
+    private final static String INS_OT_HISEVEN = "INSERT INTO ot_hiseven ( " +
+            "ots_nro_orden, " +
+            "ots_numero_cliente, " +
+            "ots_status, " +
+            "ots_fecha, " +
+            "ots_observac, " +
+            "ots_fecha_proc " +
+            ") VALUES ( " +
+            "?,?, " +
+            "'INIC', " +
+            "CURRENT, " +
+            "'INICIADA', " +
+            "CURRENT ) ";
+
 }

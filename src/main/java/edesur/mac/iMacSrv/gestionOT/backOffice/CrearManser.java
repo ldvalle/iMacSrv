@@ -151,12 +151,26 @@ public class CrearManser {
         String sNroOrdenSAP = "SC" + srvStr.padLeftZeros( Long.toString(lNroOrdenOT), 10);
 
         //-- Grabar OT_HISEVEN
+        if(!srvOT.insertOtHiseven(lNroOrdenOT, regOrden.getNumero_cliente())){
+            resu.setMensaje("ERROR Fallo el insert en la tabla OT_HISEVEN para Cliente " + regOrden.getNumero_cliente());
+            return resu;
+        }
 
         //-- Grabar OT_MAC_SAP u OT_MAC_PEND
+        if(viajaSAP.trim().equals("S")){
+            //-- Graba en OT_MAC_SAP
+
+        }else{
+            //-- Graba en OT_MAC_PEND
+
+        }
 
         //-- Enviar Mensaje Xnear ver si este es afuera de la transaccion
 
 
+
+        resu.setCodResultado("OK");
+        resu.setMensaje("");
 
         return resu;
     }
