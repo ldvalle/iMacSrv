@@ -84,6 +84,7 @@ public class CrearOT {
         return true;
     }
 
+
     private final static String INS_OT_MAC = "INSERT INTO ot_mac ( " +
             "ot_numero_cliente, " +
             "ot_mensaje_xnear, " +
@@ -131,5 +132,18 @@ public class CrearOT {
             "CURRENT, " +
             "'INICIADA', " +
             "CURRENT ) ";
+
+    private final static String SEL_MEDID_ACTIVO = "SELECT numero_cliente, numero_medidor, marca_medidor, modelo_medidor " +
+            "FROM medid " +
+            "WHERE numero_cliente = ? " +
+            "AND estado = 'I' ";
+
+    private final static String SEL_MEDID_NOACTIVO = "SELECT m1.numero_cliente, m1.numero_medidor, m1.marca_medidor, m1.modelo_medidor " +
+            "FROM medid m1 " +
+            "WHERE m1.numero_cliente = ? " +
+            "AND m1.fecha_ult_insta = (SELECT MAX(m2.fecha_ult_insta) FROM medid m2 " +
+            "   WHERE m2.numero_cliente = m1.numero_cliente) ";
+
+
 
 }
