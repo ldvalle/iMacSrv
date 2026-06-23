@@ -1,11 +1,14 @@
 package edesur.mac.iMacSrv.gestionOT.backOffice;
 
 import edesur.mac.iMacSrv.gestionOT.model.response.ClienteOTRes;
+import edesur.mac.iMacSrv.gestionOT.model.response.MotivosOTsRes;
 import edesur.mac.iMacSrv.gestionOT.utils.StringTools;
 import edesur.mac.iMacSrv.gestionOT.model.internal.OrdenDTO;
 import edesur.mac.iMacSrv.gestionOT.model.internal.OTMacDTO;
 import edesur.mac.iMacSrv.gestionOT.model.internal.OTHisevenDTO;
 import edesur.mac.iMacSrv.gestionOT.model.internal.OTMacSapDTO;
+import edesur.mac.iMacSrv.gestionOT.model.internal.MedidDTO;
+import edesur.mac.iMacSrv.gestionOT.model.internal.PrecintosDTO;
 
 
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -84,6 +87,36 @@ public class CrearOT {
         return true;
     }
 
+    private MedidDTO getMedidorManRet(long nroCliente, int estadoCliente){
+        MedidDTO regMed=null;
+        List<Object> params = new ArrayList<>();
+
+        params.add(nroCliente);
+
+        if(estadoCliente==0){
+            StringBuilder sb = new StringBuilder(SEL_MEDID_ACTIVO);
+            regMed = jdbcClient.sql(sb.toString()).params(params).query(MedidDTO.class).single();
+        }else{
+            StringBuilder sb = new StringBuilder(SEL_MEDID_NOACTIVO);
+            regMed = jdbcClient.sql(sb.toString()).params(params).query(MedidDTO.class).single();
+        }
+
+        return regMed;
+    }
+
+    private List<PrecintosDTO> getPrecintos(MedidDTO regMed){
+        StringBuilder sb = new StringBuilder(SEL_PRECINTOS);
+        List<Object> params = new ArrayList<>();
+
+        params.add(regMed.getNumero_cliente());
+        params.add(regMed.getNumero_medidor());
+        params.add(regMed.getMarca_medidor());
+        params.add(regMed.getNumero_cliente());
+
+        List<PrecintosDTO> resu = jdbcClient.sql(sb.toString()).params(params).query(PrecintosDTO.class).list();
+
+        return resu;
+    }
 
     private final static String INS_OT_MAC = "INSERT INTO ot_mac ( " +
             "ot_numero_cliente, " +
@@ -145,5 +178,20 @@ public class CrearOT {
             "   WHERE m2.numero_cliente = m1.numero_cliente) ";
 
 
-
+    private final static String SEL_PRECINTOS = "SELECT serie_insta serie_pre, numero_insta nro_pre, codigo_ubicacion cod_ubic " +
+            "FROM sellos " +
+            "WHERE numero_cliente = ? " +
+            "AND numero_medidor = ? " +
+            "AND marca_medidor  = ?' " +
+            "AND estado_insta = '6' " +
+            "AND codigo_ubicacion in (3,4, 7) " +
+            "UNION " +
+            "SELECT e.serie serie_pre, e.numero_precinto nro_pre, '0' cod_ubic " +
+            "FROM prt_precintos e " +
+            "WHERE e.numero_cliente = ? " +
+            "AND e.estado_actual = '08' " +
+            "AND e.fecha_estado = ( SELECT MAX(e2.fecha_estado) " +
+            "        FROM prt_precintos e2 " +
+            "        WHERE e.numero_cliente = e2.numero_cliente " +
+            "        AND e.estado_actual = e2.estado_actual ) ";
 }
