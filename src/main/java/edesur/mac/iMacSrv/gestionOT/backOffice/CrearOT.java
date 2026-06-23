@@ -87,7 +87,7 @@ public class CrearOT {
         return true;
     }
 
-    private MedidDTO getMedidorManRet(long nroCliente, int estadoCliente){
+    public MedidDTO getMedidorManRet(long nroCliente, int estadoCliente){
         MedidDTO regMed=null;
         List<Object> params = new ArrayList<>();
 

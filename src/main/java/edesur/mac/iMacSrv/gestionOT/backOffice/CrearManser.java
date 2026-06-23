@@ -2,15 +2,20 @@ package edesur.mac.iMacSrv.gestionOT.backOffice;
 
 import edesur.mac.iMacSrv.gestionOT.beans.DataClienteManRet;
 import edesur.mac.iMacSrv.gestionOT.beans.getMotivosOT;
+import edesur.mac.iMacSrv.gestionOT.model.internal.MedidDTO;
+import edesur.mac.iMacSrv.gestionOT.model.internal.PrecintosDTO;
 import edesur.mac.iMacSrv.gestionOT.model.request.EnviaManserReq;
 import edesur.mac.iMacSrv.gestionOT.model.response.FeedBackRes;
 import edesur.mac.iMacSrv.gestionOT.model.response.ClienteOTRes;
 import edesur.mac.iMacSrv.gestionOT.model.internal.OrdenDTO;
 import edesur.mac.iMacSrv.gestionOT.model.internal.OTMacDTO;
+import edesur.mac.iMacSrv.gestionOT.model.internal.OTMacSapDTO;
+
 import edesur.mac.iMacSrv.gestionOT.backOffice.CrearOrden;
 
 import edesur.mac.iMacSrv.xnear.model.internal.rolMac;
 import edesur.mac.iMacSrv.xnear.model.internal.MsgXnearParam;
+
 
 import edesur.mac.iMacSrv.xnear.beans.ValidacionRol;
 import edesur.mac.iMacSrv.xnear.backOffice.MensajeXnear;
@@ -89,7 +94,10 @@ public class CrearManser {
 
 
         //-- Grabar todas las tablas que definen la OT
-
+        dataOut = GrabarManser(dataIn, xnearParam, regOrden, viajaSAP, dataCliente);
+        if(dataOut.getCodResultado().equals("KO")){
+            return dataOut;
+        }
 
         return dataOut;
     }
@@ -155,6 +163,12 @@ public class CrearManser {
             resu.setMensaje("ERROR Fallo el insert en la tabla OT_HISEVEN para Cliente " + regOrden.getNumero_cliente());
             return resu;
         }
+
+        //-- Obtener datos del medidor del cliente
+        MedidDTO regMedidor = srvOT.getMedidorManRet(regCliente.getNumero_cliente(), regCliente.getEstado_cliente());
+
+        //-- Obtener datos de los precintos
+        List<PrecintosDTO> lstPrecintos = srvOT.getPrecintos(regMedidor);
 
         //-- Grabar OT_MAC_SAP u OT_MAC_PEND
         if(viajaSAP.trim().equals("S")){
@@ -257,6 +271,78 @@ public class CrearManser {
         regOTMac.setOt_fecha_vto(dFechaVto);
 
         return regOTMac;
+    }
+
+    private OTMacSapDTO setRegistroOMS(String sNroOrdenSAP, EnviaManserReq regIN, ClienteOTRes regCli, MsgXnearParam regX, MedidDTO regMedid, List<PrecintosDTO> lstPrecintos ){
+        OTMacSapDTO reg=null;
+        String codNvaTension=regIN.codTension();
+        String miTrabajo="";
+        String sAux="";
+
+        if(codNvaTension.trim().toUpperCase().equals("M")){
+            miTrabajo="SC01";
+        }else{
+            miTrabajo="SC02";
+        }
+
+        reg.setOms_tipo_ifaz("G001");
+        reg.setOms_nro_orden(sNroOrdenSAP);
+        reg.setOms_tipo_traba(miTrabajo);
+        reg.setOms_sucursal(regCli.getSuc_padre());
+        reg.setOms_area_ejecuta(regX.getAreaRolOrigen().trim());
+        reg.setOms_motivo(regIN.codMotivo());
+        //oms_fecha_ini, forzar un CURRENT en el query
+        reg.setOms_obs_dir(LimpiaTexto(regCli.getObs_dir().trim()));
+        reg.setOms_obs_lectu(LimpiaTexto(regCli.getInfo_adic_lectura().trim()));
+        reg.setOms_area_interloc(regX.getAreaCarpetaDestino().trim());
+
+        oms_area_interloc,
+        oms_nro_medidor,
+        oms_marca_med,
+        oms_modelo_med,
+        oms_cla_servi,
+        oms_potencia,
+        oms_tension,
+        oms_acometida,
+        oms_toma,
+        oms_conexion,
+        oms_pre1_ubic,
+        oms_pre2_ubic,
+        oms_pre3_ubic,
+        oms_ruta_lectura,
+        oms_nombre_cli,
+        oms_nro_cli,
+        oms_nom_entre,
+        oms_nom_entre1,
+        oms_telefono,
+        oms_nom_calle,
+        oms_nro_dir,
+        oms_nom_partido,
+        oms_piso_dir,
+        oms_depto_dir,
+        oms_nom_comuna,
+        oms_cod_postal,
+        oms_fecha_vto,
+        oms_codbar,
+        oms_serie_prec_ret,
+        oms_rol_creador,
+        oms_nombre_rol,
+        oms_proced,
+        oms_nro_proced,
+        oms_obs_segen
+
+
+        return reg;
+    }
+
+    private String LimpiaTexto(String sCadena){
+        String sAux="";
+
+        sAux = sCadena.replace('\n', ' ');
+        sAux = sAux.replace('\r', ' ');
+        sAux = sAux.replace('\t', ' ');
+
+        return sAux;
     }
 
 
