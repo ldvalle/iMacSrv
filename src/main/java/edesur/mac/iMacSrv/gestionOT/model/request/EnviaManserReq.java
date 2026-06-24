@@ -10,5 +10,6 @@ public record EnviaManserReq(
         String codMotivo,
         LocalDate fechaVto,
         String codTension,
+        float potencia,
         String codAcometida,
         String observaciones) { }

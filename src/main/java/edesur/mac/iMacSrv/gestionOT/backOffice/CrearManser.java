@@ -234,6 +234,7 @@ public class CrearManser {
         }else{
             sTrabajo="SC02";
         }
+
         if(regIN.fechaVto()!= null){
             LocalDate fechaHoy = LocalDate.now();
 
@@ -277,13 +278,50 @@ public class CrearManser {
         OTMacSapDTO reg=null;
         String codNvaTension=regIN.codTension();
         String miTrabajo="";
-        String sAux="";
+        String sTension="";
+        String sPre1Ubic="";
+        String sPre2Ubic="";
+        String sPre3Ubic="";
+        int i=1;
+        StringTools srvStr = new StringTools();
+        String sRutaLectura="";
+        String sCodBar="";
 
         if(codNvaTension.trim().toUpperCase().equals("M")){
             miTrabajo="SC01";
+            sTension="1";
         }else{
             miTrabajo="SC02";
+            sTension="3";
         }
+
+        if(regIN.codTension().equals("T")){
+            sTension="3";
+        }else{
+            sTension="1";
+        }
+
+        for(PrecintosDTO precinto : lstPrecintos){
+            switch (i){
+                case 1:
+                    sPre1Ubic=precinto.getCod_ubic();
+                    break;
+                case 2:
+                    sPre2Ubic=precinto.getCod_ubic();
+                    break;
+                case 3:
+                    sPre3Ubic=precinto.getCod_ubic();
+                    break;
+            }
+            i++;
+        }
+        sRutaLectura= regCli.getSucursal() + "-";
+        sRutaLectura += srvStr.padLeftZeros(Integer.toString(regCli.getSector()), 3) + "-";
+        sRutaLectura += srvStr.padLeftZeros(Integer.toString(regCli.getZona()), 3) + "-" ;
+        sRutaLectura += srvStr.padLeftZeros(Long.toString(regCli.getCorrelativo_ruta()),5);
+
+        sCodBar = getCodBarMedid(regMedid.getMarca_medidor(), regMedid.getModelo_medidor());
+        sCodBar += srvStr.padLeftZeros(Long.toString(regMedid.getNumero_medidor()), 9);
 
         reg.setOms_tipo_ifaz("G001");
         reg.setOms_nro_orden(sNroOrdenSAP);
@@ -295,25 +333,25 @@ public class CrearManser {
         reg.setOms_obs_dir(LimpiaTexto(regCli.getObs_dir().trim()));
         reg.setOms_obs_lectu(LimpiaTexto(regCli.getInfo_adic_lectura().trim()));
         reg.setOms_area_interloc(regX.getAreaCarpetaDestino().trim());
+        reg.setOms_nro_medidor(regMedid.getNumero_medidor());
+        reg.setOms_marca_med(regMedid.getMarca_medidor());
+        reg.setOms_modelo_med(regMedid.getModelo_medidor());
+        reg.setOms_cla_servi(regCli.getTipo_cliente());
+        reg.setOms_potencia(regIN.potencia());
+        reg.setOms_tension(sTension);
+        reg.setOms_acometida(regIN.codAcometida());
+        reg.setOms_toma(regCli.getTipo_empalme());
+        reg.setOms_conexion(regCli.getTipoConexion());
+        reg.setOms_pre1_ubic(sPre1Ubic);
+        reg.setOms_pre2_ubic(sPre2Ubic);
+        reg.setOms_pre3_ubic(sPre3Ubic);
+        reg.setOms_ruta_lectura(sRutaLectura);
+        reg.setOms_nombre_cli(regCli.getNombre().trim());
+        reg.setOms_nro_cli(regCli.getNumero_cliente());
+        reg.setOms_nom_entre(regCli.getNom_entre().trim());
+        reg.setOms_nom_entre1(regCli.getNom_entre1().trim());
 
-        oms_area_interloc,
-        oms_nro_medidor,
-        oms_marca_med,
-        oms_modelo_med,
-        oms_cla_servi,
-        oms_potencia,
-        oms_tension,
-        oms_acometida,
-        oms_toma,
-        oms_conexion,
-        oms_pre1_ubic,
-        oms_pre2_ubic,
-        oms_pre3_ubic,
-        oms_ruta_lectura,
-        oms_nombre_cli,
-        oms_nro_cli,
-        oms_nom_entre,
-        oms_nom_entre1,
+
         oms_telefono,
         oms_nom_calle,
         oms_nro_dir,
@@ -346,7 +384,23 @@ public class CrearManser {
     }
 
 
+    private String getCodBarMedid(String Marca, String Modelo){
+        String CodBar="";
+
+        StringBuilder sb = new StringBuilder(SEL_CODBAR_MEDIDOR);
+        List<Object> params = new ArrayList<>();
+
+        params.add(Marca);
+        params.add(Modelo);
+
+        CodBar = jdbcClient.sql(sb.toString()).params(params).query(String.class).single();
+
+        return CodBar;
+    }
+
     private static final String INS_RETCLI = "INSERT retcli (numero_cliente, codigo )VALUES( ?, ? ) ";
 
-
+    private static final String SEL_CODBAR_MEDIDOR = "SELECT LPAD(NVL(TRIM(mod_nrocb), 0), 3, '0') FROM modelo " +
+            "WHERE mar_codigo = ? " +
+            "AND mod_codigo = ? ";
 }
