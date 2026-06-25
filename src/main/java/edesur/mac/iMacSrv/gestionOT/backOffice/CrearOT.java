@@ -104,7 +104,7 @@ public class CrearOT {
         return regMed;
     }
 
-    private List<PrecintosDTO> getPrecintos(MedidDTO regMed){
+    public List<PrecintosDTO> getPrecintos(MedidDTO regMed){
         StringBuilder sb = new StringBuilder(SEL_PRECINTOS);
         List<Object> params = new ArrayList<>();
 

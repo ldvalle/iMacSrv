@@ -173,6 +173,7 @@ public class CrearManser {
         //-- Grabar OT_MAC_SAP u OT_MAC_PEND
         if(viajaSAP.trim().equals("S")){
             //-- Graba en OT_MAC_SAP
+            OTMacSapDTO regOMS = setRegistroOMS(sNroOrdenSAP, regRQ, regCliente, regXn, regMedidor, lstPrecintos );
 
         }else{
             //-- Graba en OT_MAC_PEND
@@ -282,10 +283,13 @@ public class CrearManser {
         String sPre1Ubic="";
         String sPre2Ubic="";
         String sPre3Ubic="";
+        String sPreSerie3="";
         int i=1;
         StringTools srvStr = new StringTools();
         String sRutaLectura="";
         String sCodBar="";
+        LocalDate dFechaVto=null;
+        String sCabObserva="";
 
         if(codNvaTension.trim().toUpperCase().equals("M")){
             miTrabajo="SC01";
@@ -301,16 +305,29 @@ public class CrearManser {
             sTension="1";
         }
 
+        if(regIN.fechaVto()!= null){
+            LocalDate fechaHoy = LocalDate.now();
+
+            DateTools srvDate = new DateTools();
+            dFechaVto=srvDate.sumaDias(fechaHoy, 10);
+        }else{
+            dFechaVto=regIN.fechaVto();
+        }
+
+
         for(PrecintosDTO precinto : lstPrecintos){
             switch (i){
                 case 1:
                     sPre1Ubic=precinto.getCod_ubic();
+                    sPreSerie3=precinto.getSerie_pre();
                     break;
                 case 2:
                     sPre2Ubic=precinto.getCod_ubic();
+                    sPreSerie3=precinto.getSerie_pre();
                     break;
                 case 3:
                     sPre3Ubic=precinto.getCod_ubic();
+                    sPreSerie3=precinto.getSerie_pre();
                     break;
             }
             i++;
@@ -323,6 +340,9 @@ public class CrearManser {
         sCodBar = getCodBarMedid(regMedid.getMarca_medidor(), regMedid.getModelo_medidor());
         sCodBar += srvStr.padLeftZeros(Long.toString(regMedid.getNumero_medidor()), 9);
 
+        //sCabObserva=regX.getCarpetaDestino() + " - " + regCli.getNumero_cliente() + " - " + regCli.getNombre().trim() + " - ";
+
+
         reg.setOms_tipo_ifaz("G001");
         reg.setOms_nro_orden(sNroOrdenSAP);
         reg.setOms_tipo_traba(miTrabajo);
@@ -330,8 +350,8 @@ public class CrearManser {
         reg.setOms_area_ejecuta(regX.getAreaRolOrigen().trim());
         reg.setOms_motivo(regIN.codMotivo());
         //oms_fecha_ini, forzar un CURRENT en el query
-        reg.setOms_obs_dir(LimpiaTexto(regCli.getObs_dir().trim()));
-        reg.setOms_obs_lectu(LimpiaTexto(regCli.getInfo_adic_lectura().trim()));
+        reg.setOms_obs_dir(LimpiaTexto(regCli.getObs_dir()));
+        reg.setOms_obs_lectu(LimpiaTexto(regCli.getInfo_adic_lectura()));
         reg.setOms_area_interloc(regX.getAreaCarpetaDestino().trim());
         reg.setOms_nro_medidor(regMedid.getNumero_medidor());
         reg.setOms_marca_med(regMedid.getMarca_medidor());
@@ -348,27 +368,27 @@ public class CrearManser {
         reg.setOms_ruta_lectura(sRutaLectura);
         reg.setOms_nombre_cli(regCli.getNombre().trim());
         reg.setOms_nro_cli(regCli.getNumero_cliente());
-        reg.setOms_nom_entre(regCli.getNom_entre().trim());
-        reg.setOms_nom_entre1(regCli.getNom_entre1().trim());
-
-
-        oms_telefono,
-        oms_nom_calle,
-        oms_nro_dir,
-        oms_nom_partido,
-        oms_piso_dir,
-        oms_depto_dir,
-        oms_nom_comuna,
-        oms_cod_postal,
-        oms_fecha_vto,
-        oms_codbar,
-        oms_serie_prec_ret,
-        oms_rol_creador,
-        oms_nombre_rol,
-        oms_proced,
-        oms_nro_proced,
-        oms_obs_segen
-
+        reg.setOms_nom_entre(regCli.getNom_entre());
+        reg.setOms_nom_entre1(regCli.getNom_entre1());
+        reg.setOms_telefono(regCli.getTelefono());
+        reg.setOms_nom_calle(regCli.getNom_calle());
+        reg.setOms_nro_dir(regCli.getNro_dir());
+        reg.setOms_nom_partido(regCli.getNom_partido());
+        reg.setOms_piso_dir(regCli.getPiso_dir());
+        reg.setOms_depto_dir(regCli.getDepto_dir());
+        reg.setOms_nom_comuna(regCli.getNom_comuna());
+        reg.setOms_cod_postal(regCli.getCod_postal());
+        reg.setOms_fecha_vto(dFechaVto);
+        reg.setOms_codbar(sCodBar);
+        reg.setOms_serie_prec_ret(sPreSerie3);
+        reg.setOms_rol_creador(regX.getRolOrigen());
+        reg.setOms_nombre_rol(regX.getRolOrigen());
+        reg.setOms_proced("MANSER");
+        reg.setOms_nro_proced(regX.getNroMensaje());
+        if(!regIN.observaciones().isEmpty()){
+            sCabObserva = LimpiaTexto(regIN.observaciones());
+            reg.setOms_obs_segen(sCabObserva);
+        }
 
         return reg;
     }
